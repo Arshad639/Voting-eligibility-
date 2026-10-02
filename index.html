@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARSHAD — Civic & Voter Eligibility Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090e;--cyan:#22d3ee;--violet:#a855f7;--text:#e6f1ff;--mute:#8da2bd;--saf:#FF9933;--grn:#138808;--err:#ff5d7a}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;font-family:Sora,system-ui,sans-serif;color:var(--text);background:
+radial-gradient(600px 400px at 15% 10%,rgba(34,211,238,.14),transparent 60%),
+radial-gradient(600px 400px at 85% 90%,rgba(168,85,247,.16),transparent 60%),var(--bg);
+display:flex;flex-direction:column;align-items:center;padding:28px 16px}
+header{text-align:center;margin-bottom:24px}
+h1{font-size:clamp(2rem,8vw,3rem);font-weight:800;letter-spacing:.12em;background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(34,211,238,.35))}
+header p{color:var(--mute);margin-top:6px;font-size:.95rem}
+main{width:100%;max-width:440px;flex:1}
+.card{position:relative;padding:26px;border-radius:20px;background:rgba(255,255,255,.04);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+border:1px solid rgba(34,211,238,.35);box-shadow:0 0 0 1px rgba(168,85,247,.25),0 0 32px rgba(34,211,238,.12),0 0 60px rgba(168,85,247,.12)}
+.card+.card{margin-top:18px}
+.view{display:none}.view.on{display:block}
+[hidden]{display:none!important}
+.tabs,.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:12px;background:rgba(0,0,0,.35)}
+.tabs{margin-bottom:20px}.seg{margin-bottom:6px}
+.tab,.mode{padding:10px;border:0;border-radius:9px;background:none;color:var(--mute);font:600 .92rem Sora,sans-serif;cursor:pointer;transition:.2s}
+.tab[aria-selected=true],.mode[aria-selected=true]{color:#fff;background:linear-gradient(135deg,rgba(34,211,238,.28),rgba(168,85,247,.32));box-shadow:0 0 14px rgba(34,211,238,.3)}
+label{display:block;font-size:.82rem;color:var(--mute);margin:14px 0 6px}
+input,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(141,162,189,.3);background:rgba(7,9,14,.7);color:var(--text);font:400 1rem Sora,sans-serif;outline:0;transition:.2s}
+textarea{resize:vertical;min-height:84px}
+input:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.2),0 0 16px rgba(34,211,238,.25)}
+input[readonly]{opacity:.65;cursor:not-allowed}
+input[type=date]{color-scheme:dark}
+.row{display:flex;gap:10px}.row input{flex:1;min-width:0}
+.otp{letter-spacing:.5em;text-align:center;font-weight:600}
+.btn{width:100%;margin-top:20px;padding:13px;border:0;border-radius:12px;font:600 1rem Sora,sans-serif;color:#05070b;cursor:pointer;background:linear-gradient(135deg,var(--cyan),var(--violet));box-shadow:0 0 20px rgba(34,211,238,.4);transition:.2s}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 0 28px rgba(168,85,247,.55)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:none;color:var(--cyan);border:1px solid var(--cyan);box-shadow:none}
+.row .btn{width:auto;margin:0;padding:0 16px;white-space:nowrap;font-size:.88rem}
+.link{display:block;margin:14px auto 0;background:none;border:0;color:var(--cyan);font:600 .85rem Sora,sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.msg{min-height:1.3em;margin-top:14px;font-size:.88rem;text-align:center}
+.msg.err{color:var(--err)}.msg.ok{color:#4ade80}
+.age{margin-top:14px;padding:12px 14px;border-radius:12px;border:1px dashed rgba(168,85,247,.5);background:rgba(168,85,247,.08);font-size:.92rem;color:var(--mute);display:none}
+.age b{color:var(--cyan);font-size:1.15rem}
+h2{font-size:1.2rem;margin-bottom:2px}.sub{color:var(--mute);font-size:.85rem;line-height:1.45}
+.welcome{margin-top:10px;padding:8px 12px;border-radius:10px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.3);font-size:.82rem;color:var(--cyan)}
+/* Result */
+.result{text-align:center}
+.badge{margin:6px auto 0;padding:3px;border-radius:20px;background:linear-gradient(180deg,var(--saf) 0 33%,#fff 33% 66%,var(--grn) 66% 100%);box-shadow:0 0 30px rgba(255,153,51,.3),0 0 30px rgba(19,136,8,.3)}
+.badge-in{padding:24px 18px;border-radius:17px;background:rgba(7,9,14,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.emoji{font-size:2.2rem;letter-spacing:.2em;margin-bottom:6px}
+.chakra{width:46px;height:46px;margin:0 auto 10px;display:block;color:#1e3a8a}
+.cand{font-size:1.5rem;font-weight:800;word-break:break-word}
+.place{color:var(--mute);font-size:.9rem;margin-top:2px}
+.stat{color:var(--mute);margin-top:8px}.stat b{color:#fff;font-size:1.3rem}
+.elig{display:inline-block;margin-top:16px;padding:11px 20px;border-radius:999px;font-weight:800;letter-spacing:.04em;font-size:.95rem}
+.elig.yes{color:#7dff7a;border:1px solid #22c55e;background:rgba(19,136,8,.2);box-shadow:0 0 22px rgba(34,197,94,.65),inset 0 0 14px rgba(34,197,94,.25)}
+.elig.no{color:#ffc266;border:1px solid var(--saf);background:rgba(255,153,51,.14);box-shadow:0 0 22px rgba(255,153,51,.6),inset 0 0 14px rgba(255,153,51,.2)}
+.thanks{margin-top:18px;color:var(--text);font-size:.95rem;line-height:1.55}
+.pop{animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+/* Feedback */
+.stars{display:flex;justify-content:center;gap:6px;margin:12px 0 4px}
+.star{background:none;border:0;font-size:2.1rem;line-height:1;color:#3b4660;cursor:pointer;padding:2px 4px;transition:.15s}
+.star.on{color:#fbbf24;text-shadow:0 0 14px rgba(251,191,36,.7)}
+.star:hover{transform:scale(1.15)}
+.fb-label{text-align:center;color:var(--mute);font-size:.82rem;min-height:1.2em}
+footer{margin-top:28px}
+.foot{padding:8px 18px;border-radius:999px;font-size:.8rem;color:var(--mute);border:1px solid rgba(168,85,247,.45);background:rgba(168,85,247,.08);box-shadow:0 0 16px rgba(168,85,247,.2)}
+.foot b{color:var(--cyan);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>ARSHAD</h1>
+  <p>Civic &amp; Voter Eligibility Portal</p>
+</header>
+
+<main>
+  <!-- VIEW 1: AUTH -->
+  <section id="v-auth" class="card view on">
+    <div class="tabs" role="tablist">
+      <button class="tab" id="t-signup" role="tab" aria-selected="true" data-tab="signup">Sign Up</button>
+      <button class="tab" id="t-login" role="tab" aria-selected="false" data-tab="login">Log In</button>
+    </div>
+
+    <!-- Sign up -->
+    <div id="p-signup">
+      <label for="su-email">Email</label>
+      <div class="row">
+        <input id="su-email" type="email" autocomplete="email" placeholder="you@example.com">
+        <button class="btn ghost" id="btn-otp" type="button">Send OTP</button>
+      </div>
+      <label for="su-otp">6-digit OTP</label>
+      <input id="su-otp" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••">
+      <label for="su-pw">Password (min 8 characters)</label>
+      <input id="su-pw" type="password" autocomplete="new-password" placeholder="Create a password">
+      <button class="btn" id="btn-register" type="button">Register</button>
+    </div>
+
+    <!-- Log in -->
+    <div id="p-login" hidden>
+      <div class="seg" role="tablist" aria-label="Login method">
+        <button class="mode" id="m-pw" role="tab" aria-selected="true" data-mode="pw">Password</button>
+        <button class="mode" id="m-otp" role="tab" aria-selected="false" data-mode="otp">Email OTP</button>
+      </div>
+      <label for="li-email">Email</label>
+      <input id="li-email" type="email" autocomplete="email" placeholder="you@example.com">
+      <div id="g-pw">
+        <label for="li-pw">Password</label>
+        <input id="li-pw" type="password" autocomplete="current-password" placeholder="Your password">
+      </div>
+      <div id="g-otp" hidden>
+        <label for="li-otp">6-digit OTP</label>
+        <div class="row">
+          <input id="li-otp" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••">
+          <button class="btn ghost" id="btn-login-otp" type="button">Send OTP</button>
+        </div>
+      </div>
+      <button class="btn" id="btn-login" type="button">Log In</button>
+      <button class="link" id="btn-forgot" type="button">Forgot Password?</button>
+    </div>
+
+    <!-- Reset password -->
+    <div id="p-reset" hidden>
+      <h2>Reset password</h2>
+      <p class="sub">We'll email you a code to verify it's you.</p>
+      <label for="rs-email">Email</label>
+      <div class="row">
+        <input id="rs-email" type="email" autocomplete="email" placeholder="you@example.com">
+        <button class="btn ghost" id="btn-reset-otp" type="button">Send OTP</button>
+      </div>
+      <label for="rs-otp">6-digit OTP</label>
+      <input id="rs-otp" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••">
+      <label for="rs-pw">New password (min 8 characters)</label>
+      <input id="rs-pw" type="password" autocomplete="new-password" placeholder="New password">
+      <label for="rs-pw2">Confirm new password</label>
+      <input id="rs-pw2" type="password" autocomplete="new-password" placeholder="Repeat new password">
+      <button class="btn" id="btn-reset" type="button">Set new password</button>
+      <button class="link" id="btn-back" type="button">Back to log in</button>
+    </div>
+    <p class="msg" id="auth-msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <!-- VIEW 2: VOTER FORM -->
+  <section id="v-form" class="card view">
+    <h2>Voter details</h2>
+    <p class="sub">Enter your details to check your voting eligibility.</p>
+    <div class="welcome" id="welcome" hidden>Welcome back — your name and date of birth are filled in from your last entry.</div>
+    <label for="f-name">Full name</label>
+    <input id="f-name" autocomplete="name" placeholder="As on your ID">
+    <label for="f-email">Email</label>
+    <input id="f-email" type="email" readonly>
+    <label for="f-phone">Phone number (10 digits)</label>
+    <input id="f-phone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="9876543210">
+    <label for="f-place">Place / City</label>
+    <input id="f-place" autocomplete="address-level2" placeholder="e.g. Chennai, Coimbatore">
+    <label for="f-dob">Date of birth</label>
+    <input id="f-dob" type="date">
+    <div class="age" id="age-box" aria-live="polite">Your age: <b id="age-val"></b> <span id="age-extra"></span></div>
+    <button class="btn" id="btn-submit" type="button">Check eligibility</button>
+    <p class="msg" id="form-msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <!-- VIEW 3: RESULT + FEEDBACK -->
+  <div id="v-result" class="view">
+    <section class="card result">
+      <div class="badge pop"><div class="badge-in">
+        <div class="emoji" id="r-emoji" aria-hidden="true"></div>
+        <svg class="chakra" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+          <circle cx="50" cy="50" r="42"/><circle cx="50" cy="50" r="5" fill="currentColor"/><g id="spokes"></g>
+        </svg>
+        <div class="cand" id="r-name"></div>
+        <div class="place" id="r-place"></div>
+        <div class="stat">Age: <b id="r-age"></b> years</div>
+        <div class="elig" id="r-elig"></div>
+      </div></div>
+      <p class="thanks" id="r-thanks"></p>
+      <button class="btn ghost" id="btn-again" type="button">Check another entry</button>
+      <button class="btn" id="btn-logout" type="button">Return to Home / Log Out</button>
+    </section>
+
+    <section class="card" id="fb">
+      <h2>Rate your experience ⭐</h2>
+      <p class="sub">Optional — tell us how it went.</p>
+      <div class="stars" id="stars" role="radiogroup" aria-label="Rating from 1 to 5 stars"></div>
+      <div class="fb-label" id="fb-label"></div>
+      <label for="fb-text">Comments (optional)</label>
+      <textarea id="fb-text" maxlength="500" placeholder="What worked well? What could be better?"></textarea>
+      <button class="btn" id="btn-fb" type="button" disabled>Send feedback</button>
+      <p class="msg" id="fb-msg" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+</main>
+
+<footer><div class="foot">Engineered by <b>ARSHAD</b></div></footer>
+
+<script>
+/* ====== CONFIG: paste your deployed Web App URL (ends with /exec) ====== */
+const API_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+
+const $ = id => document.getElementById(id);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+let session = { email: null, token: null };
+
+/* ---- API: text/plain avoids CORS preflight; redirect:"follow" handles Apps Script 302 ---- */
+async function api(payload) {
+  if (API_URL.startsWith("PASTE")) throw new Error("Set API_URL in index.html first.");
+  const res = await fetch(API_URL, {
+    method: "POST", redirect: "follow",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error("Network error (" + res.status + ").");
+  try { return await res.json(); } catch { throw new Error("Unexpected server response. Check deployment access is 'Anyone'."); }
+}
+function say(id, text, type) { const el = $(id); el.textContent = text || ""; el.className = "msg" + (type ? " " + type : ""); }
+async function busy(btn, label, fn) {
+  const old = btn.textContent; btn.disabled = true; btn.textContent = label;
+  try { return await fn(); } finally { btn.disabled = false; btn.textContent = old; }
+}
+function show(view) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("on"));
+  $(view).classList.add("on"); window.scrollTo({ top: 0 });
+}
+function expired(r) { if (r.sessionExpired) setTimeout(logout, 1800); }
+const digits = id => $(id).addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, ""));
+["su-otp", "li-otp", "rs-otp"].forEach(digits);
+
+/* ---- Panels & tabs ---- */
+function panel(name) {
+  ["signup", "login", "reset"].forEach(p => $("p-" + p).hidden = p !== name);
+  $("t-signup").setAttribute("aria-selected", name === "signup");
+  $("t-login").setAttribute("aria-selected", name !== "signup");
+  say("auth-msg", "");
+}
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => panel(t.dataset.tab)));
+$("btn-forgot").addEventListener("click", () => { $("rs-email").value = $("li-email").value; panel("reset"); });
+$("btn-back").addEventListener("click", () => panel("login"));
+
+let loginMode = "pw";
+document.querySelectorAll(".mode").forEach(b => b.addEventListener("click", () => {
+  loginMode = b.dataset.mode;
+  $("m-pw").setAttribute("aria-selected", loginMode === "pw"); $("m-otp").setAttribute("aria-selected", loginMode === "otp");
+  $("g-pw").hidden = loginMode !== "pw"; $("g-otp").hidden = loginMode !== "otp";
+  $("btn-forgot").hidden = loginMode !== "pw"; say("auth-msg", "");
+}));
+
+/* ---- OTP sending (shared) with 60s resend cooldown ---- */
+function cooldown(btn, s) {
+  btn.disabled = true; btn.textContent = "Resend in " + s + "s";
+  const iv = setInterval(() => {
+    if (--s <= 0) { clearInterval(iv); btn.disabled = false; btn.textContent = "Resend OTP"; }
+    else btn.textContent = "Resend in " + s + "s";
+  }, 1000);
+}
+function wireOtp(btnId, emailId, payloadFn, focusId) {
+  const btn = $(btnId);
+  btn.addEventListener("click", async () => {
+    const email = $(emailId).value.trim();
+    if (!EMAIL_RE.test(email)) return say("auth-msg", "Enter a valid email address.", "err");
+    say("auth-msg", "");
+    try {
+      const r = await busy(btn, "Sending…", () => api({ ...payloadFn(), email }));
+      say("auth-msg", r.message, r.success ? "ok" : "err");
+      if (r.success) { $(focusId).focus(); cooldown(btn, 60); }
+    } catch (e) { say("auth-msg", e.message, "err"); }
+  });
+}
+wireOtp("btn-otp", "su-email", () => ({ action: "SEND_OTP", purpose: "SIGNUP" }), "su-otp");
+wireOtp("btn-login-otp", "li-email", () => ({ action: "SEND_OTP", purpose: "LOGIN" }), "li-otp");
+wireOtp("btn-reset-otp", "rs-email", () => ({ action: "SEND_RESET_OTP" }), "rs-otp");
+
+/* ---- Register ---- */
+$("btn-register").addEventListener("click", async e => {
+  const email = $("su-email").value.trim(), otp = $("su-otp").value.trim(), password = $("su-pw").value;
+  if (!EMAIL_RE.test(email)) return say("auth-msg", "Enter a valid email address.", "err");
+  if (!/^\d{6}$/.test(otp)) return say("auth-msg", "Enter the 6-digit OTP.", "err");
+  if (password.length < 8) return say("auth-msg", "Password must be at least 8 characters.", "err");
+  try {
+    const r = await busy(e.target, "Registering…", () => api({ action: "SIGN_UP", email, otp, password }));
+    if (r.success) {
+      panel("login"); $("li-email").value = email; $("li-pw").focus();
+      say("auth-msg", r.message, "ok"); $("su-otp").value = ""; $("su-pw").value = "";
+    } else say("auth-msg", r.message, "err");
+  } catch (er) { say("auth-msg", er.message, "err"); }
+});
+
+/* ---- Login (password OR email OTP) ---- */
+$("btn-login").addEventListener("click", async e => {
+  const email = $("li-email").value.trim();
+  if (!EMAIL_RE.test(email)) return say("auth-msg", "Enter a valid email address.", "err");
+  let payload;
+  if (loginMode === "pw") {
+    const password = $("li-pw").value;
+    if (!password) return say("auth-msg", "Enter your password.", "err");
+    payload = { action: "LOGIN", email, password };
+  } else {
+    const otp = $("li-otp").value.trim();
+    if (!/^\d{6}$/.test(otp)) return say("auth-msg", "Enter the 6-digit OTP.", "err");
+    payload = { action: "LOGIN_WITH_OTP", email, otp };
+  }
+  try {
+    const r = await busy(e.target, "Logging in…", () => api(payload));
+    if (!r.success) return say("auth-msg", r.message, "err");
+    session = { email: r.email, token: r.token };
+    $("li-pw").value = ""; $("li-otp").value = ""; say("auth-msg", "");
+    await openForm();
+  } catch (er) { say("auth-msg", er.message, "err"); }
+});
+["li-email", "li-pw", "li-otp"].forEach(id => $(id).addEventListener("keydown", e => e.key === "Enter" && $("btn-login").click()));
+
+/* ---- Forgot password ---- */
+$("btn-reset").addEventListener("click", async e => {
+  const email = $("rs-email").value.trim(), otp = $("rs-otp").value.trim(), pw = $("rs-pw").value;
+  if (!EMAIL_RE.test(email)) return say("auth-msg", "Enter a valid email address.", "err");
+  if (!/^\d{6}$/.test(otp)) return say("auth-msg", "Enter the 6-digit OTP.", "err");
+  if (pw.length < 8) return say("auth-msg", "Password must be at least 8 characters.", "err");
+  if (pw !== $("rs-pw2").value) return say("auth-msg", "Passwords don't match.", "err");
+  try {
+    const r = await busy(e.target, "Updating…", () => api({ action: "RESET_PASSWORD", email, otp, newPassword: pw }));
+    if (!r.success) return say("auth-msg", r.message, "err");
+    ["rs-otp", "rs-pw", "rs-pw2"].forEach(id => $(id).value = "");
+    panel("login"); $("li-email").value = email;
+    $("m-pw").click(); $("li-pw").focus(); say("auth-msg", r.message, "ok");
+  } catch (er) { say("auth-msg", er.message, "err"); }
+});
+
+/* ---- Open form + pre-fill from latest submission (name & DOB only) ---- */
+async function openForm() {
+  $("f-email").value = session.email;
+  ["f-name", "f-phone", "f-place", "f-dob"].forEach(id => $(id).value = "");
+  $("welcome").hidden = true; updateAge(); say("form-msg", "");
+  show("v-form");
+  try {
+    const p = await api({ action: "GET_USER_PROFILE", email: session.email, token: session.token });
+    if (p.success && p.found) {
+      $("f-name").value = p.name || ""; $("f-dob").value = p.dob || "";
+      $("welcome").hidden = false; updateAge(); $("f-phone").focus();
+    } else { if (p.sessionExpired) expired(p); $("f-name").focus(); }
+  } catch { $("f-name").focus(); } // profile is a convenience; the form still works without it
+}
+
+/* ---- Live age calculation ---- */
+const dobEl = $("f-dob");
+dobEl.max = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+function ageParts(v) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v); if (!m) return null;
+  const [y, mo, d] = [+m[1], +m[2], +m[3]], now = new Date(), dob = new Date(y, mo - 1, d);
+  if (dob > now || y < 1900) return null;
+  let years = now.getFullYear() - y, months = now.getMonth() - (mo - 1), days = now.getDate() - d;
+  if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+  if (months < 0) { years--; months += 12; }
+  return { years, months, days };
+}
+function updateAge() {
+  const a = ageParts(dobEl.value), box = $("age-box");
+  if (!a) { box.style.display = "none"; return; }
+  box.style.display = "block";
+  $("age-val").textContent = a.years + " years";
+  $("age-extra").textContent = "(" + a.months + " months, " + a.days + " days)";
+}
+["input", "change"].forEach(ev => dobEl.addEventListener(ev, updateAge));
+
+/* ---- Submit voter data (repeat submissions allowed) ---- */
+digits("f-phone");
+$("btn-submit").addEventListener("click", async e => {
+  const name = $("f-name").value.trim().replace(/\s+/g, " "), phone = $("f-phone").value,
+        place = $("f-place").value.trim().replace(/\s+/g, " "), dob = dobEl.value;
+  if (name.length < 2) return say("form-msg", "Enter your full name.", "err");
+  if (!/^\d{10}$/.test(phone)) return say("form-msg", "Phone number must be exactly 10 digits.", "err");
+  if (place.length < 2) return say("form-msg", "Enter your place / city.", "err");
+  if (!ageParts(dob)) return say("form-msg", "Select a valid date of birth.", "err");
+  say("form-msg", "");
+  try {
+    const r = await busy(e.target, "Checking…", () =>
+      api({ action: "SUBMIT_VOTER_DATA", email: session.email, token: session.token, name, phone, place, dob }));
+    if (!r.success) { say("form-msg", r.message, "err"); return expired(r); }
+    showResult(r);
+  } catch (er) { say("form-msg", er.message, "err"); }
+});
+
+/* ---- Result ---- */
+(function spokes() { // Ashoka Chakra: 24 spokes
+  let s = ""; for (let i = 0; i < 24; i++) { const a = i * 15 * Math.PI / 180;
+    s += `<line x1="${50 + 7 * Math.sin(a)}" y1="${50 - 7 * Math.cos(a)}" x2="${50 + 40 * Math.sin(a)}" y2="${50 - 40 * Math.cos(a)}" stroke-width="1.6"/>`; }
+  $("spokes").innerHTML = s;
+})();
+function showResult(r) {
+  const ok = r.eligibility === "ELIGIBLE";
+  $("r-emoji").textContent = ok ? "🗳️ ✅ 🎉" : "⏳ 🚫 🧒";
+  $("r-name").textContent = r.name; $("r-place").textContent = r.place || "";
+  $("r-age").textContent = r.age;
+  const el = $("r-elig"); el.className = "elig " + (ok ? "yes" : "no");
+  el.textContent = ok ? "ELIGIBLE TO VOTE" : "NOT ELIGIBLE (UNDER 18)";
+  $("r-thanks").textContent = (ok
+    ? "Thank you for checking your eligibility. Your vote shapes the nation — Jai Hind! "
+    : "Thank you for checking your eligibility. You'll be eligible to vote once you turn 18. ") + "🙏";
+  resetFeedback(); show("v-result");
+}
+$("btn-again").addEventListener("click", () => {
+  ["f-phone", "f-place"].forEach(id => $(id).value = ""); say("form-msg", ""); show("v-form"); $("f-phone").focus();
+});
+
+/* ---- Optional feedback: 5 stars + comment ---- */
+const LABELS = ["", "Poor", "Fair", "Good", "Very good", "Excellent"];
+let rating = 0;
+const starBox = $("stars");
+for (let i = 1; i <= 5; i++) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "star"; b.textContent = "★"; b.dataset.v = i;
+  b.setAttribute("role", "radio"); b.setAttribute("aria-label", i + (i === 1 ? " star" : " stars")); b.setAttribute("aria-checked", "false");
+  b.addEventListener("click", () => setRating(i));
+  b.addEventListener("mouseenter", () => paint(i));
+  b.addEventListener("focus", () => paint(i));
+  starBox.appendChild(b);
+}
+starBox.addEventListener("mouseleave", () => paint(rating));
+starBox.addEventListener("focusout", () => paint(rating));
+function paint(n) {
+  starBox.querySelectorAll(".star").forEach(s => s.classList.toggle("on", +s.dataset.v <= n));
+  $("fb-label").textContent = LABELS[n || rating] || "";
+}
+function setRating(n) {
+  rating = n; paint(n); $("btn-fb").disabled = false;
+  starBox.querySelectorAll(".star").forEach(s => s.setAttribute("aria-checked", +s.dataset.v === n));
+}
+function resetFeedback() {
+  rating = 0; paint(0); $("fb-text").value = ""; $("fb-text").disabled = false; starBox.style.pointerEvents = "";
+  $("btn-fb").disabled = true; $("btn-fb").textContent = "Send feedback"; say("fb-msg", "");
+  starBox.querySelectorAll(".star").forEach(s => s.setAttribute("aria-checked", "false"));
+}
+$("btn-fb").addEventListener("click", async e => {
+  if (!rating) return say("fb-msg", "Pick a star rating first.", "err");
+  try {
+    const r = await busy(e.target, "Sending…", () =>
+      api({ action: "SUBMIT_FEEDBACK", email: session.email, token: session.token, rating, comments: $("fb-text").value.trim() }));
+    if (!r.success) { say("fb-msg", r.message, "err"); return expired(r); }
+    say("fb-msg", r.message + " 🙏", "ok");
+    e.target.disabled = true; $("fb-text").disabled = true; starBox.style.pointerEvents = "none";
+  } catch (er) { say("fb-msg", er.message, "err"); }
+});
+
+/* ---- Logout ---- */
+function logout() {
+  session = { email: null, token: null };
+  ["f-name", "f-phone", "f-place", "f-dob", "f-email", "li-pw", "li-otp", "su-otp", "su-pw"].forEach(id => $(id).value = "");
+  $("age-box").style.display = "none"; $("welcome").hidden = true; say("form-msg", ""); resetFeedback();
+  panel("login"); show("v-auth");
+}
+$("btn-logout").addEventListener("click", logout);
+</script>
+</body>
+</html>
